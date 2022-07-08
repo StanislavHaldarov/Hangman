@@ -18,6 +18,7 @@ public class Main {
     //Методът, който дава достъп до други методи, които са свързани със започване или спиране на играта.
     {
         Scanner scan = new Scanner(System.in);
+        System.out.println("          ГЛАВНО МЕНЮ");
         System.out.println("_________________________________");
         System.out.println("Изберете режим на игра: \n1. Единична игра \n2. Играч срещу играч \n3. Изход");
         System.out.println("_________________________________");
@@ -40,11 +41,17 @@ public class Main {
     //Метод, който дава на потребителя да въведе име и отваря друг метод, който генерира думата, която ще се познава.
     {
         Scanner scan = new Scanner(System.in);
+        System.out.println("1. (<) Назад");
+        System.out.println("2. (x) Изход от играта.");
         System.out.print("Напишете името си: ");
         String singlePlayerName = scan.nextLine();
         if (singlePlayerName.length() > 16) {
             System.out.println("Името е по-дълго от 16 символа!");
             enterSinglePlayerName();
+        } else if (singlePlayerName.equals("1")) {
+            printGameMenu();
+        } else if (singlePlayerName.equals("2")) {
+            System.out.println("Довиждане!");
         } else {
             getSinglePlayerWord(singlePlayerName);
         }
@@ -87,60 +94,81 @@ public class Main {
             System.out.print(usedWrongLetters[i] + ", ");
         }
         System.out.println();
+        System.out.println("1. (<) Към главното меню.");
+        System.out.println("2. (Х) Изход от играта.");
         System.out.print("Въведете буква: ");
         String userGuess = scan.nextLine();
-        userGuess = userGuess.toUpperCase();
-        char[] userGuessArray = userGuess.toCharArray();
-        if (userGuess.length() == 1) {
-            if (userGuessArray[0] >= 'А' && userGuessArray[0] <= 'Я') {
-                boolean arrayChanged = false;
-                for (int i = 0; i < hiddenWordArray.length; i++) {
-                    if (userGuessArray[0] == word.charAt(i)) {
-                        hiddenWordArray[i] = userGuessArray[0];
-                        arrayChanged = true;
-                    }
-                }
-                if (arrayChanged) {
-                    printHangman(wrongGuesses, singlePlayerName, usedWrongLetters, word);
-                    boolean userWins = true;
+        if (userGuess.equals("1")) {
+            printGameMenu();
+        } else if (userGuess.equals("2")) {
+            System.out.println("Довиждане!");
+        } else {
+            userGuess = userGuess.toUpperCase();
+            char[] userGuessArray = userGuess.toCharArray();
+            if (userGuess.length() == 1) {
+                if (userGuessArray[0] >= 'А' && userGuessArray[0] <= 'Я') {
+                    boolean arrayChanged = false;
                     for (int i = 0; i < hiddenWordArray.length; i++) {
-                        if (hiddenWordArray[i] == '_') {
-                            userWins = false;
+                        if (userGuessArray[0] == word.charAt(i)) {
+                            hiddenWordArray[i] = userGuessArray[0];
+                            arrayChanged = true;
                         }
                     }
-                    if (userWins) {
-                        System.out.println("Поздравления, " + singlePlayerName + ", успяхте да спасите човечето!");
-                        System.out.println("Думата е " + word);
-                        printGameOverQuestion(singlePlayerName);
+                    if (arrayChanged) {
+                        printHangman(wrongGuesses, singlePlayerName, usedWrongLetters, word);
+                        boolean userWins = true;
+                        for (int i = 0; i < hiddenWordArray.length; i++) {
+                            if (hiddenWordArray[i] == '_') {
+                                userWins = false;
+                            }
+                        }
+                        if (userWins) {
+                            System.out.println("Поздравления, " + singlePlayerName + ", успяхте да спасите човечето!");
+                            System.out.println("Думата е " + word);
+                            printGameOverQuestion(singlePlayerName);
 
+                        } else {
+                            for (int i = 0; i < hiddenWordArray.length; i++) {
+                                if (userGuessArray[0] == hiddenWordArray[i]) {
+                                    System.out.println("ТАЗИ БУКВА ВЕЧЕ Е ИЗПОЛЗВАНА!");
+                                    break;
+                                }
+                            }
+                            userEnterLetter(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, singlePlayerName);
+                        }
                     } else {
-                        userEnterLetter(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, singlePlayerName);
+                        wrongGuesses++;
+                        boolean newWrongGuess = true;
+                        for (int i = 0; i < usedWrongLetters.length; i++) {
+                            if (userGuessArray[0] == usedWrongLetters[i]) {
+                                newWrongGuess = false;
+                                wrongGuesses--;
+                            }
+                        }
+
+                        if (newWrongGuess) {
+                            usedWrongLetters[wrongLetterIndex] = userGuessArray[0];
+                            wrongLetterIndex++;
+                            printHangman(wrongGuesses, singlePlayerName, usedWrongLetters, word);
+                            if(wrongGuesses<10) {
+                                userEnterLetter(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, singlePlayerName);
+                            }
+                        }
+                        else {
+                            printHangman(wrongGuesses, singlePlayerName, usedWrongLetters, word);
+                            System.out.println("ТАЗИ БУКВА ВЕЧЕ Е ИЗПОЛЗВАНА!");
+                            userEnterLetter(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, singlePlayerName);
+                        }
                     }
                 } else {
-                    wrongGuesses++;
-                    boolean newWrongGuess = true;
-                    for (int i = 0; i < usedWrongLetters.length; i++) {
-                        if (userGuessArray[0] == usedWrongLetters[i]) {
-                            newWrongGuess = false;
-                            wrongGuesses--;
-                        }
-                    }
-
-                    if (newWrongGuess) {
-                        usedWrongLetters[wrongLetterIndex] = userGuessArray[0];
-                        wrongLetterIndex++;
-                    }
-                    printHangman(wrongGuesses, singlePlayerName, usedWrongLetters, word);
+                    System.out.print("Използвайте само кирилица! ");
                     userEnterLetter(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, singlePlayerName);
                 }
+
             } else {
-                System.out.print("Използвайте само кирилица! ");
+                System.out.print("Въведохте повече от 1 символ!");
                 userEnterLetter(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, singlePlayerName);
             }
-
-        } else {
-            System.out.print("Въведохте повече от 1 символ!");
-            userEnterLetter(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, singlePlayerName);
         }
     }
 
@@ -384,11 +412,17 @@ public class Main {
     {
         Scanner scan = new Scanner(System.in);
         int playerOneScore = 0;
+        System.out.println("1. (<) Назад");
+        System.out.println("2. (x) Изход от играта.");
         System.out.print("(Играч 1) Напишете името си: ");
         String playerOneName = scan.nextLine();
         if (playerOneName.length() > 16) {
             System.out.println("Името е по-дълго от 16 символа!");
             enterPlayerOneName();
+        } else if (playerOneName.equals("1")) {
+            printGameMenu();
+        } else if (playerOneName.equals("2")) {
+            System.out.println("Довиждане!");
         } else {
             enterPlayerTwoName(playerOneName, playerOneScore);
         }
@@ -400,11 +434,17 @@ public class Main {
     {
         Scanner scan = new Scanner(System.in);
         int playerTwoScore = 0;
+        System.out.println("1. (<) Назад");
+        System.out.println("2. (x) Изход от играта.");
         System.out.print("(Играч 2) Напишете името си: ");
         String playerTwoName = scan.nextLine();
         if (playerTwoName.length() > 16) {
             System.out.println("Името е по-дълго от 16 символа!");
             enterPlayerTwoName(playerOneName, playerOneScore);
+        } else if (playerTwoName.equals("1")) {
+            enterPlayerTwoName(playerOneName, playerOneScore);
+        } else if (playerOneName.equals("2")) {
+            System.out.println("Довиждане!");
         } else {
             getMultiplayerWord(playerOneName, playerTwoName, playerOneScore, playerTwoScore);
 
@@ -452,64 +492,105 @@ public class Main {
             System.out.print(usedWrongLetters[i] + ", ");
         }
         System.out.println();
+        System.out.println("1. (<) Към главното меню.");
+        System.out.println("2. (Х) Изход от играта.");
         System.out.print(playerOneName + " e на ход! \nВъведете буква: ");
         String playerOneGuess = scan.nextLine();
-        playerOneGuess = playerOneGuess.toUpperCase();
-        char[] playerOneGuessArray = playerOneGuess.toCharArray();
-        if (playerOneGuess.length() == 1) {
-            if (playerOneGuessArray[0] >= 'А' && playerOneGuessArray[0] <= 'Я') {
-                boolean arrayChanged = false;
-                for (int i = 0; i < hiddenWordArray.length; i++) {
-                    if (playerOneGuessArray[0] == word.charAt(i)) {
-                        hiddenWordArray[i] = playerOneGuessArray[0];
-                        arrayChanged = true;
-                    }
-                }
-                if (arrayChanged) {
-                    printHangmanMultiplayer(wrongGuesses, playerOneName, playerTwoName, usedWrongLetters, word, playerOneScore, playerTwoScore);
-                    boolean playerOneWins = true;
-                    for (int i = 0; i < hiddenWordArray.length; i++) {
-                        if (hiddenWordArray[i] == '_') {
-                            playerOneWins = false;
-                        }
-                    }
-                    if (playerOneWins) {
-                        System.out.println("Поздравления, " + playerOneName + ", успяхте да спасите човечето!");
-                        System.out.println("Думата е " + word);
-                        playerOneScore++;
-                        System.out.println("Резултат: \n" + playerOneName + " – " + playerOneScore + "\n" + playerTwoName + " – " + playerTwoScore);
-                        continueGameQuestion(playerOneName, playerTwoName, playerOneScore, playerTwoScore);
+        if (playerOneGuess.equals("1")) {
+            System.out.println("Резултат: \n" + playerOneName + " – " + playerOneScore + "\n" + playerTwoName + " – " + playerTwoScore);
+            if (playerOneScore > playerTwoScore) {
+                System.out.println(playerOneName + " ПЕЧЕЛИ!");
+            } else if (playerOneScore < playerTwoScore) {
+                {
+                    System.out.println(playerTwoName + " ПЕЧЕЛИ!");
 
-                    } else {
-                        enterLetterPlayerOne(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
-                    }
-                } else {
-                    wrongGuesses++;
-                    boolean newWrongGuess = true;
-                    for (int i = 0; i < usedWrongLetters.length; i++) {
-                        if (playerOneGuessArray[0] == usedWrongLetters[i]) {
-                            newWrongGuess = false;
-                            wrongGuesses--;
-                        }
-                    }
-
-                    if (newWrongGuess) {
-                        usedWrongLetters[wrongLetterIndex] = playerOneGuessArray[0];
-                        wrongLetterIndex++;
-                        printHangmanMultiplayer(wrongGuesses, playerOneName, playerTwoName, usedWrongLetters, word, playerOneScore, playerTwoScore);
-                        enterLetterPlayerTwo(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
-                    }
-                    printHangmanMultiplayer(wrongGuesses, playerOneName, playerTwoName, usedWrongLetters, word, playerOneScore, playerTwoScore);
-                    enterLetterPlayerOne(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
                 }
             } else {
-                System.out.print("Използвайте само кирилица! ");
+                System.out.println("РАВЕНСТВО!");
+            }
+            printGameMenu();
+        } else if (playerOneGuess.equals("2")) {
+            System.out.println("Резултат: \n" + playerOneName + " – " + playerOneScore + "\n" + playerTwoName + " – " + playerTwoScore);
+            if (playerOneScore > playerTwoScore) {
+                System.out.println(playerOneName + " ПЕЧЕЛИ!");
+            } else if (playerOneScore < playerTwoScore) {
+                {
+                    System.out.println(playerTwoName + " ПЕЧЕЛИ!");
+
+                }
+            } else {
+                System.out.println("РАВЕНСТВО!");
+            }
+            System.out.println("Довиждане!");
+        } else {
+            playerOneGuess = playerOneGuess.toUpperCase();
+            char[] playerOneGuessArray = playerOneGuess.toCharArray();
+            if (playerOneGuess.length() == 1) {
+                if (playerOneGuessArray[0] >= 'А' && playerOneGuessArray[0] <= 'Я') {
+                    boolean arrayChanged = false;
+                    for (int i = 0; i < hiddenWordArray.length; i++) {
+                        if (playerOneGuessArray[0] == word.charAt(i)) {
+                            hiddenWordArray[i] = playerOneGuessArray[0];
+                            arrayChanged = true;
+                        }
+                    }
+                    if (arrayChanged) {
+                        printHangmanMultiplayer(wrongGuesses, playerOneName, playerTwoName, usedWrongLetters, word, playerOneScore, playerTwoScore);
+                        boolean playerOneWins = true;
+                        for (int i = 0; i < hiddenWordArray.length; i++) {
+                            if (hiddenWordArray[i] == '_') {
+                                playerOneWins = false;
+                            }
+                        }
+                        if (playerOneWins) {
+                            System.out.println("Поздравления, " + playerOneName + ", успяхте да спасите човечето!");
+                            System.out.println("Думата е " + word);
+                            playerOneScore++;
+                            System.out.println("Резултат: \n" + playerOneName + " – " + playerOneScore + "\n" + playerTwoName + " – " + playerTwoScore);
+                            continueGameQuestion(playerOneName, playerTwoName, playerOneScore, playerTwoScore);
+
+                        } else {
+                            for (int i = 0; i < hiddenWordArray.length; i++) {
+                                if (playerOneGuessArray[0] == hiddenWordArray[i]) {
+                                    System.out.println("ТАЗИ БУКВА ВЕЧЕ Е ИЗПОЛЗВАНА!");
+                                    break;
+                                }
+                            }
+                            enterLetterPlayerOne(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
+                        }
+                    } else {
+                        wrongGuesses++;
+                        boolean newWrongGuess = true;
+                        for (int i = 0; i < usedWrongLetters.length; i++) {
+                            if (playerOneGuessArray[0] == usedWrongLetters[i]) {
+                                newWrongGuess = false;
+                                wrongGuesses--;
+                            }
+                        }
+
+                        if (newWrongGuess) {
+                            usedWrongLetters[wrongLetterIndex] = playerOneGuessArray[0];
+                            wrongLetterIndex++;
+                            printHangmanMultiplayer(wrongGuesses, playerOneName, playerTwoName, usedWrongLetters, word, playerOneScore, playerTwoScore);
+                            if(wrongGuesses<10) {
+                                enterLetterPlayerTwo(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
+                            }
+                        }
+                        else {
+                            printHangmanMultiplayer(wrongGuesses, playerOneName, playerTwoName, usedWrongLetters, word, playerOneScore, playerTwoScore);
+                            System.out.println("ТАЗИ БУКВА ВЕЧЕ Е ИЗПОЛЗВАНА!");
+                            enterLetterPlayerOne(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
+                        }
+                    }
+                } else {
+                    System.out.print("Използвайте само кирилица! ");
+                    enterLetterPlayerOne(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
+                }
+
+            } else {
+                System.out.print("Въведохте повече от 1 символ!");
                 enterLetterPlayerOne(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
             }
-
-        } else {
-            System.out.print("Въведохте повече от 1 символ!");
-            enterLetterPlayerOne(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
         }
     }
 
@@ -525,64 +606,105 @@ public class Main {
             System.out.print(usedWrongLetters[i] + ", ");
         }
         System.out.println();
+        System.out.println("1. (<) Към главното меню.");
+        System.out.println("2. (Х) Изход от играта.");
         System.out.print(playerTwoName + " e на ход! \nВъведете буква: ");
         String playerTwoGuess = scan.nextLine();
-        playerTwoGuess = playerTwoGuess.toUpperCase();
-        char[] playerTwoGuessArray = playerTwoGuess.toCharArray();
-        if (playerTwoGuess.length() == 1) {
-            if (playerTwoGuessArray[0] >= 'А' && playerTwoGuessArray[0] <= 'Я') {
-                boolean arrayChanged = false;
-                for (int i = 0; i < hiddenWordArray.length; i++) {
-                    if (playerTwoGuessArray[0] == word.charAt(i)) {
-                        hiddenWordArray[i] = playerTwoGuessArray[0];
-                        arrayChanged = true;
-                    }
-                }
-                if (arrayChanged) {
-                    printHangmanMultiplayer(wrongGuesses, playerOneName, playerTwoName, usedWrongLetters, word, playerOneScore, playerTwoScore);
-                    boolean playerTwoWins = true;
-                    for (int i = 0; i < hiddenWordArray.length; i++) {
-                        if (hiddenWordArray[i] == '_') {
-                            playerTwoWins = false;
-                        }
-                    }
-                    if (playerTwoWins) {
-                        System.out.println("Поздравления, " + playerTwoName + ", успяхте да спасите човечето!");
-                        System.out.println("Думата е " + word);
-                        playerTwoScore++;
-                        System.out.println("Резултат: \n" + playerOneName + " – " + playerOneScore + "\n" + playerTwoName + " – " + playerTwoScore);
-                        continueGameQuestion(playerOneName, playerTwoName, playerOneScore, playerTwoScore);
+        if (playerTwoGuess.equals("1")) {
+            System.out.println("Резултат: \n" + playerOneName + " – " + playerOneScore + "\n" + playerTwoName + " – " + playerTwoScore);
+            if (playerOneScore > playerTwoScore) {
+                System.out.println(playerOneName + " ПЕЧЕЛИ!");
+            } else if (playerOneScore < playerTwoScore) {
+                {
+                    System.out.println(playerTwoName + " ПЕЧЕЛИ!");
 
-                    } else {
-                        enterLetterPlayerTwo(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
-                    }
-                } else {
-                    wrongGuesses++;
-                    boolean newWrongGuess = true;
-                    for (int i = 0; i < usedWrongLetters.length; i++) {
-                        if (playerTwoGuessArray[0] == usedWrongLetters[i]) {
-                            newWrongGuess = false;
-                            wrongGuesses--;
-                        }
-                    }
-
-                    if (newWrongGuess) {
-                        usedWrongLetters[wrongLetterIndex] = playerTwoGuessArray[0];
-                        wrongLetterIndex++;
-                        printHangmanMultiplayer(wrongGuesses, playerOneName, playerTwoName, usedWrongLetters, word, playerOneScore, playerTwoScore);
-                        enterLetterPlayerOne(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
-                    }
-                    printHangmanMultiplayer(wrongGuesses, playerOneName, playerTwoName, usedWrongLetters, word, playerOneScore, playerTwoScore);
-                    enterLetterPlayerTwo(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
                 }
             } else {
-                System.out.print("Използвайте само кирилица! ");
+                System.out.println("РАВЕНСТВО!");
+            }
+            printGameMenu();
+        } else if (playerTwoGuess.equals("2")) {
+            System.out.println("Резултат: \n" + playerOneName + " – " + playerOneScore + "\n" + playerTwoName + " – " + playerTwoScore);
+            if (playerOneScore > playerTwoScore) {
+                System.out.println(playerOneName + " ПЕЧЕЛИ!");
+            } else if (playerOneScore < playerTwoScore) {
+                {
+                    System.out.println(playerTwoName + " ПЕЧЕЛИ!");
+
+                }
+            } else {
+                System.out.println("РАВЕНСТВО!");
+            }
+            System.out.println("Довиждане!");
+        } else {
+            playerTwoGuess = playerTwoGuess.toUpperCase();
+            char[] playerTwoGuessArray = playerTwoGuess.toCharArray();
+            if (playerTwoGuess.length() == 1) {
+                if (playerTwoGuessArray[0] >= 'А' && playerTwoGuessArray[0] <= 'Я') {
+                    boolean arrayChanged = false;
+                    for (int i = 0; i < hiddenWordArray.length; i++) {
+                        if (playerTwoGuessArray[0] == word.charAt(i)) {
+                            hiddenWordArray[i] = playerTwoGuessArray[0];
+                            arrayChanged = true;
+                        }
+                    }
+                    if (arrayChanged) {
+                        printHangmanMultiplayer(wrongGuesses, playerOneName, playerTwoName, usedWrongLetters, word, playerOneScore, playerTwoScore);
+                        boolean playerTwoWins = true;
+                        for (int i = 0; i < hiddenWordArray.length; i++) {
+                            if (hiddenWordArray[i] == '_') {
+                                playerTwoWins = false;
+                            }
+                        }
+                        if (playerTwoWins) {
+                            System.out.println("Поздравления, " + playerTwoName + ", успяхте да спасите човечето!");
+                            System.out.println("Думата е " + word);
+                            playerTwoScore++;
+                            System.out.println("Резултат: \n" + playerOneName + " – " + playerOneScore + "\n" + playerTwoName + " – " + playerTwoScore);
+                            continueGameQuestion(playerOneName, playerTwoName, playerOneScore, playerTwoScore);
+
+                        } else {
+                            for (int i = 0; i < hiddenWordArray.length; i++) {
+                                if (playerTwoGuessArray[0] == hiddenWordArray[i]) {
+                                    System.out.println("ТАЗИ БУКВА ВЕЧЕ Е ИЗПОЛЗВАНА!");
+                                    break;
+                                }
+                            }
+                            enterLetterPlayerTwo(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
+                        }
+                    } else {
+                        wrongGuesses++;
+                        boolean newWrongGuess = true;
+                        for (int i = 0; i < usedWrongLetters.length; i++) {
+                            if (playerTwoGuessArray[0] == usedWrongLetters[i]) {
+                                newWrongGuess = false;
+                                wrongGuesses--;
+                            }
+                        }
+
+                        if (newWrongGuess) {
+                            usedWrongLetters[wrongLetterIndex] = playerTwoGuessArray[0];
+                            wrongLetterIndex++;
+                            printHangmanMultiplayer(wrongGuesses, playerOneName, playerTwoName, usedWrongLetters, word, playerOneScore, playerTwoScore);
+                            if(wrongGuesses<10) {
+                                enterLetterPlayerOne(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
+                            }
+                        }
+                        else {
+                            printHangmanMultiplayer(wrongGuesses, playerOneName, playerTwoName, usedWrongLetters, word, playerOneScore, playerTwoScore);
+                            System.out.println("ТАЗИ БУКВА ВЕЧЕ Е ИЗПОЛЗВАНА!");
+                            enterLetterPlayerTwo(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
+                        }
+                    }
+                } else {
+                    System.out.print("Използвайте само кирилица! ");
+                    enterLetterPlayerTwo(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
+                }
+
+            } else {
+                System.out.print("Въведохте повече от 1 символ!");
                 enterLetterPlayerTwo(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
             }
-
-        } else {
-            System.out.print("Въведохте повече от 1 символ!");
-            enterLetterPlayerTwo(usedWrongLetters, wrongLetterIndex, word, hiddenWordArray, wrongGuesses, playerOneName, playerTwoName, playerOneScore, playerTwoScore);
         }
     }
 
